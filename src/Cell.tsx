@@ -25,8 +25,12 @@ const Cell = ({ i, j }: any) => {
     classes.push("winner");
   }
 
-  const handleClick = () => {
-    if (store.state.credit > 0 && store.state.winner[0] < 0) {
+  const handleOver = () => {
+    if (
+      store.state.mouse &&
+      store.state.credit > 0 &&
+      store.state.winner[0] < 0
+    ) {
       const w: any = window;
       w.play();
 
@@ -49,8 +53,8 @@ const Cell = ({ i, j }: any) => {
     <div
       className={classes.join(" ")}
       style={styles}
-      onClick={handleClick}
-      onMouseOver={handleClick}
+      // onClick={handleClick}
+      onMouseOver={handleOver}
     ></div>
   );
 };

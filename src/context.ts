@@ -5,5 +5,7 @@ export const initialState = {
   price: 0.1,
   hits: [],
   winner: [-1, -1],
+  mouse: 0,
+  opened: false,
 };
 export const context = React.createContext<any>(null);

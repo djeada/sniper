@@ -14,6 +14,10 @@ export default function App() {
   };
 
   const jackBot = () => {
+    if (state.opened) {
+      return;
+    }
+
     const randomI = Math.floor(Math.random() * x);
     const randomJ = Math.floor(Math.random() * y);
 
@@ -27,12 +31,30 @@ export default function App() {
     setState({
       ...state,
       winner: [randomI, randomJ],
+      opened: true,
+    });
+  };
+
+  const mouseDown = () => {
+    setState({
+      ...state,
+      mouse: 1,
+    });
+
+    const w: any = window;
+    w.play();
+  };
+
+  const mouseUp = () => {
+    setState({
+      ...state,
+      mouse: 0,
     });
   };
 
   return (
     <context.Provider value={{ state, setState }}>
-      <div className="App">
+      <div className="App" onMouseDown={mouseDown} onMouseUp={mouseUp}>
         <h1>Your Credit {state.credit.toFixed(2)} PLN</h1>
         <h2>
           Bullet cost {state.price.toFixed(2)} PLN, Hit makes {x * y}x =
