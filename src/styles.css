@@ -1,15 +1,28 @@
 .App {
   font-family: sans-serif;
   text-align: center;
+  /* cursor: url('./assets/cursor.cur'), auto; */
+  cursor: cell;
+  background: black;
+  color: #00ff00
 }
 
 .cell {
-  background-color: red;
+  background: red;
+  border: 1px solid black;
 }
 
-.row {
-  display: grid;
-  grid-template-columns: repeat(auto);
-  width: 100%;
-  background-color: blue;
+.on {
+  background-color: #58ff03;
+}
+
+.winner {
+  background-color: rgb(60, 60, 255) !important;
+  animation: blinker 0.3s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }
