@@ -35,9 +35,10 @@
       const backgroundsound = document.getElementById("backgroundsound");
       backgroundsound.volume = 0.33;
       backgroundsound.loop = true;
-      backgroundsound.play();
 
       window.play = () => {
+        backgroundsound.play();
+
         const audio = document.getElementById("shooting");
 
         audio.currentTime = 0;
