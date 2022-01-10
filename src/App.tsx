@@ -1,17 +1,16 @@
 import "./styles.css";
 import Net from "./Net";
-import { useMemo, useState } from "react";
-import { context, getInitialState } from "./context";
-
-const x = 1;
-const y = 2;
-const init = getInitialState(x, y);
+import { useContext, useEffect, useState } from "react";
+import { context, initialState } from "./context";
 
 export default function App() {
-  const [state, setState] = useState(init);
+  const x = 20;
+  const y = 50;
+
+  const [state, setState] = useState(initialState);
 
   const restart = () => {
-    setState({ ...init, credit: state.credit });
+    setState({ ...initialState, credit: state.credit });
   };
 
   const jackBot = () => {
@@ -22,10 +21,12 @@ export default function App() {
     const randomI = Math.floor(Math.random() * x);
     const randomJ = Math.floor(Math.random() * y);
 
-    if (state.net[randomI][randomJ]) {
-      alert("Jackbot!!");
-      state.credit += 100;
-    }
+    state.hits.map(([i, j]: any) => {
+      if (randomI === i && randomJ === j) {
+        alert("Jackbot!!");
+        state.credit += 100;
+      }
+    });
 
     setState({
       ...state,
@@ -37,7 +38,7 @@ export default function App() {
   const mouseDown = () => {
     setState({
       ...state,
-      mouseDown: true,
+      mouse: 1,
     });
 
     const w: any = window;
@@ -47,13 +48,9 @@ export default function App() {
   const mouseUp = () => {
     setState({
       ...state,
-      mouseDown: false,
+      mouse: 0,
     });
   };
-
-  const renderNet = useMemo(() => {
-    return <Net key="net" net={state.net} winner={state.winner} />;
-  }, [state.winner, ...state.net.flat(2)]);
 
   return (
     <context.Provider value={{ state, setState }}>
@@ -63,13 +60,9 @@ export default function App() {
           Bullet cost {state.price.toFixed(2)} €, Hit makes {x * y}x =
           {state.price * x * y} €
         </h2>
-        <button className="button" onClick={jackBot}>
-          open
-        </button>
-        <button className="button" onClick={restart}>
-          next round
-        </button>
-        {renderNet}
+        <button onClick={restart}>next round</button>
+        <button onClick={jackBot}>open</button>
+        <Net x={x} y={y} />
       </div>
     </context.Provider>
   );
