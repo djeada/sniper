@@ -1,2 +1,5 @@
 # sniper
-Created with CodeSandbox
+demo:
+http://sniperjackbot.herokuapp.com/
+
+
