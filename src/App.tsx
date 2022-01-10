@@ -60,8 +60,12 @@ export default function App() {
           Bullet cost {state.price.toFixed(2)} PLN, Hit makes {x * y}x =
           {state.price * x * y} PLN
         </h2>
-        <button onClick={restart}>next round</button>
-        <button onClick={jackBot}>open</button>
+        <button className="button" onClick={restart}>
+          next round
+        </button>
+        <button className="button" onClick={jackBot}>
+          open
+        </button>
         <Net x={x} y={y} />
       </div>
     </context.Provider>
