@@ -1,5 +1,15 @@
 import React from "react";
 
+export interface StateType {
+  credit: number;
+  price: number;
+  hits: never[];
+  winner: number[];
+  mouse: number;
+  opened: boolean;
+  hash?: string
+}
+
 export const initialState = {
   credit: 50,
   price: 0.1,

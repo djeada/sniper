@@ -1,31 +1,24 @@
 import { useContext, useState } from "react";
 import { context } from "./context";
 
-const Cell = ({ i, j }: any) => {
+const Cell = ({ i, j, watch, on, winner }: any) => {
   let styles = {};
   const classes = ["cell"];
 
-  const store = useContext(context);
-
-  const on = store.state.hits.filter(([I, J]: number[]) => {
-    return I === i && J === j;
-  }).length;
+  const store = !watch ? useContext(context) : { state: {} };
 
   const [power, setPower] = useState(on);
   if (power) {
     classes.push("on");
   }
 
-  const winner =
-    store.state.winner &&
-    store.state.winner[0] === i &&
-    store.state.winner[1] === j;
-
   if (winner) {
     classes.push("winner");
   }
 
   const handleOver = () => {
+    if (watch) return;
+
     if (
       store.state.mouse &&
       store.state.credit > 0 &&
@@ -53,7 +46,6 @@ const Cell = ({ i, j }: any) => {
     <div
       className={classes.join(" ")}
       style={styles}
-      // onClick={handleClick}
       onMouseOver={handleOver}
     ></div>
   );

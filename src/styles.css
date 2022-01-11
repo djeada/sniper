@@ -38,3 +38,19 @@
     opacity: 0;
   }
 }
+
+ul {
+  display: inline;
+}
+
+a {
+  color: #cdcbff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.watch {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  width: 100%
+}
