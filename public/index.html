@@ -29,9 +29,16 @@
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <span id="audio"></span>
     <audio id="shooting"><source src="shooting.mp3" /></audio>
+    <audio id="backgroundsound"><source src="backgroundsound.mp3" /></audio>
 
     <script>
+      const backgroundsound = document.getElementById("backgroundsound");
+      backgroundsound.volume = 0.33;
+      backgroundsound.loop = true;
+
       window.play = () => {
+        backgroundsound.play();
+
         const audio = document.getElementById("shooting");
 
         audio.currentTime = 0;
