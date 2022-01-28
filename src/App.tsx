@@ -72,10 +72,10 @@ export default function App() {
   return (
     <context.Provider value={{ state, setState }}>
       <div className="App" onMouseDown={mouseDown} onMouseUp={mouseUp}>
-        <h1>Your Credit {state.credit.toFixed(2)} PLN</h1>
+        <h1>Your Credit {state.credit.toFixed(2)} €</h1>
         <h2>
-          Bullet cost {state.price.toFixed(2)} PLN, Hit makes {x * y}x =
-          {state.price * x * y} PLN
+          Bullet cost {state.price.toFixed(2)} €, Hit makes {x * y}x =
+          {state.price * x * y} €
         </h2>
         <button className="button" onClick={restart}>
           next round
