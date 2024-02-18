@@ -1,12 +1,18 @@
 import "./styles.css";
 import Net from "./Net";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { context, initialState } from "./context";
+import { useInterval } from "react-use";
+
+export const x = 20;
+export const y = 50;
+
+const socketUrl = "wss://sockets-wael.herokuapp.com";
+const socket = new WebSocket(socketUrl);
+
+socket.addEventListener("open", function (event) {});
 
 export default function App() {
-  const x = 20;
-  const y = 50;
-
   const [state, setState] = useState(initialState);
 
   const restart = () => {
@@ -52,6 +58,17 @@ export default function App() {
     });
   };
 
+  useInterval(() => {
+    try {
+      socket.send(
+        JSON.stringify({
+          ...state,
+          type: "net",
+        })
+      );
+    } catch (e) {}
+  }, 1000);
+
   return (
     <context.Provider value={{ state, setState }}>
       <div className="App" onMouseDown={mouseDown} onMouseUp={mouseUp}>
@@ -66,7 +83,7 @@ export default function App() {
         <button className="button" onClick={jackBot}>
           open
         </button>
-        <Net x={x} y={y} />
+        <Net x={x} y={y} hits={state.hits} winner={state.winner} />
       </div>
     </context.Provider>
   );
