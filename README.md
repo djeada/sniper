@@ -1,35 +1,48 @@
-# sniper
+# Sniper
 
-This is an example of game that could be developed with the help of codesandbox.io. The player is able to move around the map and shoot enemies. The game is designed to be played with a friend.
+"Sniper" is a Phaser-based game where the player can move around the map and shoot enemies. Designed for fun and engaging gameplay, perfect for playing with friends.
 
 ![image](https://github.com/djeada/sniper/assets/37275728/01052fa7-1f5f-4e33-a075-65c4325d939a)
 
-<h1>How to play</h1>
+## Prerequisites
+- Node.js
+- npm (Node Package Manager)
 
-The player impersonates a sniper. The objective is to shoot the enemies which are represented by rectangles.  The player can shoot by left clicking on the mouse. There are multiple levels. Each level has a different number of enemies and different shooting patterns. At the end of each level, the player is given a new weapon. The player can also use the weapon by pressing the space bar. To win the game, the player must eliminate all the enemies. The player can also use the health packs to restore health. The player can also use the power ups to increase the damage of the weapon. There is also a time limit for each level. If the player runs out of time, the game is over. The player can also use the escape key to pause the game.
+## Installation
+To set up the game, follow these steps:
 
-<h1>Technical details</h1>
+1. **Clone the repository:**
 
-The game is developed using the following technologies:
+```
+git clone https://github.com/djeada/sniper.git
+cd sniper
+```
 
-* **HTML**: HTML5
-* **CSS**: CSS3
-* **TypeScript**: TypeScript
-* **Webpack**: Webpack
-* **Jest**: Jest
-* **React**: React
-* **React-DOM**: ReactDOM
-* **React-Router**: ReactRouter
-* **Redux**: Redux
+2. **Install dependencies:**
 
-<h1>Demo</h1>
+```
+npm install
+```
 
-You can play the game using the following link:
+## Building the Game
 
-http://sniperjackbot.herokuapp.com/
+To build the game, run the following command in the project root:
 
-Don't forget to check out the source code.
+```
+npm run build
+```
 
+This command compiles the TypeScript code and prepares the game for running.
+
+## Running the Game
+
+Start the game with:
+
+```
+npm start
+```
+
+This will open the game in your default web browser.
 
 ## How to Contribute
 
