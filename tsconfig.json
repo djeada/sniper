@@ -1,25 +1,32 @@
 {
-  "include": [
-    "./src/**/*"
-  ],
-  "compilerOptions": {
+"compilerOptions": {
+  "module": "esnext",
+    "target": "es5",
+    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    },
     "lib": [
       "dom",
-      "es2015"
+      "es5",
+      "es2015.promise"
     ],
-    "jsx": "react-jsx",
-    "target": "es5",
-    "allowJs": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
-  }
+    "skipLibCheck": true, // Add this line to skip type checking of all declaration files (*.d.ts)
+    "strictPropertyInitialization": false // Add this to disable strict checking for property initialization
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
+
