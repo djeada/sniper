@@ -4,6 +4,10 @@
 
 ![image](https://github.com/djeada/sniper/assets/37275728/01052fa7-1f5f-4e33-a075-65c4325d939a)
 
+## Demo
+
+![sniper](https://github.com/djeada/sniper/assets/37275728/7fad9c1f-9712-40a5-af89-74d8d7753828)
+
 ## Prerequisites
 - Node.js
 - npm (Node Package Manager)
