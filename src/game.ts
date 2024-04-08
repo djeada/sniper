@@ -2,114 +2,147 @@ import Phaser from 'phaser';
 import cursorImg from '../public/cursor.png';
 import shootEffectImg from '../public/shoot_effect.png';
 
-
 class MainScene extends Phaser.Scene {
-    private squares!: Phaser.GameObjects.Group;
-    private score: number = 0;
-    private scoreText!: Phaser.GameObjects.Text;
-    private customCursor!: Phaser.GameObjects.Image;
-    private shootEffect!: Phaser.GameObjects.Sprite;
+    private squares: Phaser.GameObjects.Group;
+    private score: number;
+    private lives: number;
+    private gameOverFlag: boolean;
+    private scoreText: Phaser.GameObjects.Text;
+    private customCursor: Phaser.GameObjects.Image;
+    private shootEffect: Phaser.GameObjects.Sprite;
 
     constructor() {
-        super({ key: 'MainScene' });
+       super({ key: 'MainScene' });
+        this.lives = 3;
+        this.score = 0;
+        this.gameOverFlag = false;
     }
 
-preload() {
-    // Load a single image for the cursor
-    this.load.image('cursor', cursorImg);
+    preload() {
+        this.load.image('cursor', cursorImg);
+        this.load.spritesheet('shootEffect', shootEffectImg, { frameWidth: 40, frameHeight: 40 });
+    }
 
-    // Load a sprite sheet for the shoot effect
-    this.load.spritesheet('shootEffect', shootEffectImg, { 
-        frameWidth: 40, // Correct size for each frame
-        frameHeight: 40 // Correct size for each frame
-    });
-}
+    create() {
+    this.gameOverFlag = false;
+    this.score = 0;
+    this.lives = 3;
 
-
-create() {
-    this.squares = this.add.group();
-    this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
-
-    this.customCursor = this.add.image(0, 0, 'cursor');
-    this.customCursor.setOrigin(0.5, 0.5);
-
-    this.input.setDefaultCursor('none');
-    
-    // Set up shoot effect
-    this.shootEffect = this.add.sprite(0, 0, 'shootEffect').setDepth(-1);
-    this.shootEffect.setVisible(false);
-
-    // Define shoot animation
-    this.anims.create({
-        key: 'shoot',
-        frames: this.anims.generateFrameNumbers('shootEffect', { 
-            start: 0, 
-            end: 4 // Adjust as necessary for the number of frames you have
-        }),
-        frameRate: 14,
-        repeat: 0
-    });
-    // Listen for animation complete to hide the shoot effect
-    this.shootEffect.on('animationcomplete', () => {
-        this.shootEffect.setVisible(false);
-    });
-
-    // Set up custom cursor with a higher depth to render on top
-    this.customCursor = this.add.image(0, 0, 'cursor').setDepth(1);
-
-
-
-    this.time.addEvent({
-        delay: 1000,
-        callback: this.spawnSquare,
-        callbackScope: this,
-        loop: true
-    });
-
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        this.shoot(pointer);
-    });
-
-
-}
-
-
-
-    update() {
-        this.customCursor.setPosition(this.input.x, this.input.y);
-
-        Phaser.Actions.IncX(this.squares.getChildren(), 2);
-
-        this.squares.getChildren().forEach((square: any) => { // Changed to 'any' to avoid conflict
-            if ((square as Phaser.GameObjects.Rectangle).x > this.sys.canvas.width) {
-                square.destroy();
-            }
+        this.squares = this.add.group();  // Initialize the group here
+        this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
+    this.livesText = this.add.text(10, 30, 'Lives: 3', { fontSize: '16px', color: '#fff' });        
+this.setupCursor();
+        this.setupShootEffect();
+        this.spawnSquaresRegularly();
+        this.input.on('pointerdown', this.handlePointerDown);
+       this.time.addEvent({
+            delay: 1000,
+            callback: this.spawnSquare, // using arrow function to maintain context
+            loop: true
         });
     }
 
-    private spawnSquare() {
-        let square = this.add.rectangle(0, Phaser.Math.Between(0, this.sys.canvas.height), 20, 20, 0x00ff00);
+    update() {
+        this.moveCursorToPointer();
+    if (this.gameOverFlag) {
+
+        return; // Stop updating if the game is over
+    }
+
+        this.updateSquares();
+    }
+
+    private setupCursor() {
+        this.customCursor = this.add.image(0, 0, 'cursor').setDepth(1).setOrigin(0.5, 0.5);
+        this.input.setDefaultCursor('none');
+    }
+
+    private setupShootEffect() {
+        this.shootEffect = this.add.sprite(0, 0, 'shootEffect').setVisible(false).setDepth(-1);
+        this.anims.create({
+            key: 'shoot',
+            frames: this.anims.generateFrameNumbers('shootEffect', { start: 0, end: 4 }),
+            frameRate: 14,
+            repeat: 0
+        });
+        this.shootEffect.on('animationcomplete', () => this.shootEffect.setVisible(false));
+    }
+
+    private spawnSquaresRegularly() {
+        this.time.addEvent({
+            delay: 1000,
+            callback: this.spawnSquare,
+            loop: true
+        });
+    }
+
+    private moveCursorToPointer() {
+        this.customCursor.setPosition(this.input.x, this.input.y);
+    }
+
+private updateSquares() {
+    this.squares.getChildren().forEach((square: Phaser.GameObjects.Rectangle) => {
+        square.x += 2;
+        if (square.x > this.sys.canvas.width) {
+            square.destroy();
+            this.lives--;
+            this.updateLivesText();
+            if (this.lives <= 0 && !this.gameOverFlag) {
+                this.gameOver();
+            }
+        }
+    });
+}
+
+
+
+  private spawnSquare = () => {
+    if (this.gameOverFlag) {
+
+        return; // Stop updating if the game is over
+    }
+        const square = this.add.rectangle(0, Phaser.Math.Between(0, this.sys.canvas.height), 20, 20, 0x00ff00);
         this.squares.add(square);
     }
 
-private shoot(pointer: Phaser.Input.Pointer) {
-    // Position the shoot effect and play the animation
-    this.shootEffect.setPosition(pointer.x, pointer.y);
-    this.shootEffect.setVisible(true);
-    this.shootEffect.play('shoot');
+    private handlePointerDown = (pointer: Phaser.Input.Pointer) => {
+        this.shoot(pointer);
+    }
 
-        this.squares.getChildren().forEach((square: any) => { // Changed to 'any' to avoid conflict
-            if ((square as Phaser.GameObjects.Rectangle).getBounds().contains(pointer.x, pointer.y)) {
+    private shoot(pointer: Phaser.Input.Pointer) {
+        this.shootEffect.setPosition(pointer.x, pointer.y).setVisible(true).play('shoot');
+        this.squares.getChildren().forEach((square: Phaser.GameObjects.Rectangle) => {
+            if (square.getBounds().contains(pointer.x, pointer.y)) {
                 square.destroy();
-                this.score++;
-                this.updateScoreText();
+                this.incrementScore();
             }
         });
     }
 
-    private updateScoreText() {
-        this.scoreText.setText('Score: ' + this.score);
+    private incrementScore() {
+        this.score++;
+        this.updateScoreText();
     }
+private updateLivesText() {
+    this.livesText.setText('Lives: ' + this.lives);
+}
+    private updateScoreText() {
+        this.scoreText.setText(`Score: ${this.score}`);
+    }
+private gameOver() {
+    this.gameOverFlag = true;
+    this.squares.clear(true); // Clear all squares
+    const gameOverText = this.add.text(this.sys.canvas.width / 2, this.sys.canvas.height / 2, 'Game Over', { fontSize: '40px', color: '#ff0000' }).setOrigin(0.5, 0.5);
+
+    this.input.keyboard.removeAllListeners(); // Remove all existing input listeners
+    // Optionally, add a button or click event to restart the game
+    this.input.once('pointerdown', () => {
+        this.scene.restart();
+        this.gameOverFlag = false;
+    });
+}
+
+
 }
 
 const config: Phaser.Types.Core.GameConfig = {
