@@ -2,73 +2,49 @@ import Phaser from 'phaser';
 import cursorImg from '../public/cursor.png';
 import shootEffectImg from '../public/shoot_effect.png';
 import humanSpriteImg from '../public/human.png';
-import bacgrkoundMusicAudio from '../public/backgroundsound.mp3';
+import backgroundMusicAudio from '../public/backgroundsound.mp3';
 import shootingSoundAudio from '../public/shooting.mp3';
 
 class MainScene extends Phaser.Scene {
-    private squares: Phaser.GameObjects.Group;
-    private score: number;
-    private lives: number;
-    private gameOverFlag: boolean;
+    private humans: Phaser.GameObjects.Group;
+    private score = 0;
+    private lives = 3;
+    private gameOverFlag = false;
     private scoreText: Phaser.GameObjects.Text;
+    private livesText: Phaser.GameObjects.Text;
     private customCursor: Phaser.GameObjects.Image;
     private shootEffect: Phaser.GameObjects.Sprite;
+    private backgroundMusic: Phaser.Sound.BaseSound;
+    private shootingSound: Phaser.Sound.BaseSound;
 
     constructor() {
-       super({ key: 'MainScene' });
-        this.lives = 3;
-        this.score = 0;
-        this.gameOverFlag = false;
+        super('MainScene');
     }
 
     preload() {
         this.load.image('cursor', cursorImg);
         this.load.spritesheet('shootEffect', shootEffectImg, { frameWidth: 40, frameHeight: 40 });
-    this.load.spritesheet('humanSprite', humanSpriteImg, { frameWidth: 40, frameHeight: 40 }); 
-this.load.audio('backgroundMusic', bacgrkoundMusicAudio);
-    this.load.audio('shootingSound', shootingSoundAudio);
+        this.load.spritesheet('humanSprite', humanSpriteImg, { frameWidth: 40, frameHeight: 40 });
+        this.load.audio('backgroundMusic', backgroundMusicAudio);
+        this.load.audio('shootingSound', shootingSoundAudio);
     }
 
     create() {
-    this.gameOverFlag = false;
-    this.score = 0;
-    this.lives = 3;
-
-        this.squares = this.add.group();  // Initialize the group here
-        this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
-    this.livesText = this.add.text(10, 30, 'Lives: 3', { fontSize: '16px', color: '#fff' });        
-this.setupCursor();
+        this.humans = this.add.group();
+        this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#FFF' });
+        this.livesText = this.add.text(10, 30, 'Lives: 3', { fontSize: '16px', color: '#FFF' });
+        this.setupCursor();
         this.setupShootEffect();
-        this.spawnSquaresRegularly();
-        this.input.on('pointerdown', this.handlePointerDown);
-       this.time.addEvent({
-            delay: 1000,
-            callback: this.spawnSquare, // using arrow function to maintain context
-            loop: true
-        });
-   this.anims.create({
-        key: 'running',
-        frames: this.anims.generateFrameNumbers('humanSprite', {
-            start: 0,
-            end: 6
-        }),
-        frameRate: 8,
-        repeat: -1
-    });
-    const backgroundMusic = this.sound.add('backgroundMusic', { loop: true });
-    backgroundMusic.play();
-
-    this.shootingSound = this.sound.add('shootingSound');
+        this.createHumanAnimation();
+        this.setupBackgroundMusic();
+        this.setupShootingSound();
+        this.setupEvents();
     }
 
     update() {
-        this.moveCursorToPointer();
-    if (this.gameOverFlag) {
-
-        return; // Stop updating if the game is over
-    }
-
-        this.updateSquares();
+        if (this.gameOverFlag) return;
+        this.customCursor.setPosition(this.input.x, this.input.y);
+        this.updateHumans();
     }
 
     private setupCursor() {
@@ -84,86 +60,81 @@ this.setupCursor();
             frameRate: 14,
             repeat: 0
         });
-        this.shootEffect.on('animationcomplete', () => this.shootEffect.setVisible(false));
+        this.shootEffect.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => this.shootEffect.setVisible(false));
     }
 
-    private spawnSquaresRegularly() {
-        this.time.addEvent({
-            delay: 1000,
-            callback: this.spawnSquare,
-            loop: true
+    private createHumanAnimation() {
+        this.anims.create({
+            key: 'running',
+            frames: this.anims.generateFrameNumbers('humanSprite', { start: 0, end: 6 }),
+            frameRate: 8,
+            repeat: -1
         });
     }
 
-    private moveCursorToPointer() {
-        this.customCursor.setPosition(this.input.x, this.input.y);
+    private setupBackgroundMusic() {
+        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true });
+        this.backgroundMusic.play();
     }
 
-private updateSquares() {
-    this.squares.getChildren().forEach((square: Phaser.GameObjects.Rectangle) => {
-        square.x += 2;
-        if (square.x > this.sys.canvas.width) {
-            square.destroy();
-            this.lives--;
-            this.updateLivesText();
-            if (this.lives <= 0 && !this.gameOverFlag) {
-                this.gameOver();
-            }
-        }
-    });
-}
-
-
-
-  private spawnSquare = () => {
-    if (this.gameOverFlag) {
-
-        return; // Stop updating if the game is over
-    }
-    const human = this.add.sprite(0, Phaser.Math.Between(0, this.sys.canvas.height), 'humanSprite');
-    human.play('running'); // Assuming 'running' is an animation created for the human sprites
-    this.squares.add(human); // Consider renaming 'squares' to a more appropriate name like 'humans'
-}
-
-    private handlePointerDown = (pointer: Phaser.Input.Pointer) => {
-        this.shoot(pointer);
+    private setupShootingSound() {
+        this.shootingSound = this.sound.add('shootingSound');
     }
 
-    private shoot(pointer: Phaser.Input.Pointer) {
+    private setupEvents() {
+        this.input.on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
+        this.time.addEvent({ delay: 1000, callback: this.spawnHuman, loop: true });
+    }
+
+    private spawnHuman = () => {
+        if (this.gameOverFlag) return;
+        const human = this.add.sprite(0, Phaser.Math.Between(0, this.sys.canvas.height), 'humanSprite').play('running');
+        this.humans.add(human);
+    }
+
+    private handlePointerDown(pointer: Phaser.Input.Pointer) {
         this.shootEffect.setPosition(pointer.x, pointer.y).setVisible(true).play('shoot');
-        this.squares.getChildren().forEach((square: Phaser.GameObjects.Rectangle) => {
-            if (square.getBounds().contains(pointer.x, pointer.y)) {
-                square.destroy();
+        this.humans.getChildren().forEach(human => {
+            if (human.getBounds().contains(pointer.x, pointer.y)) {
+                human.destroy();
                 this.incrementScore();
             }
         });
-    this.shootingSound.play(); // Play shooting sound
+        this.shootingSound.play();
+    }
+
+    private updateHumans() {
+        this.humans.getChildren().forEach((human: Phaser.GameObjects.Sprite) => {
+            human.x += 2;
+            if (human.x > this.sys.canvas.width) {
+                human.destroy();
+                this.decrementLives();
+            }
+        });
     }
 
     private incrementScore() {
         this.score++;
-        this.updateScoreText();
-    }
-private updateLivesText() {
-    this.livesText.setText('Lives: ' + this.lives);
-}
-    private updateScoreText() {
         this.scoreText.setText(`Score: ${this.score}`);
     }
-private gameOver() {
-    this.gameOverFlag = true;
-    this.squares.clear(true); // Clear all squares
-    const gameOverText = this.add.text(this.sys.canvas.width / 2, this.sys.canvas.height / 2, 'Game Over', { fontSize: '40px', color: '#ff0000' }).setOrigin(0.5, 0.5);
 
-    this.input.keyboard.removeAllListeners(); // Remove all existing input listeners
-    // Optionally, add a button or click event to restart the game
-    this.input.once('pointerdown', () => {
-        this.scene.restart();
-        this.gameOverFlag = false;
-    });
-}
+    private decrementLives() {
+        this.lives--;
+        this.livesText.setText(`Lives: ${this.lives}`);
+        if (this.lives <= 0) this.gameOver();
+    }
 
-
+    private gameOver() {
+        this.gameOverFlag = true;
+        this.humans.clear(true);
+        this.add.text(this.sys.canvas.width / 2, this.sys.canvas.height / 2, 'Game Over', { fontSize: '40px', color: '#FF0000' }).setOrigin(0.5, 0.5);
+        this.input.keyboard.removeAllListeners();
+        this.input.once('pointerdown', () => {
+            this.score = 0;
+            this.scene.restart();
+            this.gameOverFlag = false;
+        });
+    }
 }
 
 const config: Phaser.Types.Core.GameConfig = {
