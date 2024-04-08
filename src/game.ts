@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import cursorImg from '../public/cursor.png';
 import shootEffectImg from '../public/shoot_effect.png';
+import humanSpriteImg from '../public/human.png';
 import bacgrkoundMusicAudio from '../public/backgroundsound.mp3';
 import shootingSoundAudio from '../public/shooting.mp3';
 
@@ -23,6 +24,7 @@ class MainScene extends Phaser.Scene {
     preload() {
         this.load.image('cursor', cursorImg);
         this.load.spritesheet('shootEffect', shootEffectImg, { frameWidth: 40, frameHeight: 40 });
+    this.load.spritesheet('humanSprite', humanSpriteImg, { frameWidth: 40, frameHeight: 40 }); 
 this.load.audio('backgroundMusic', bacgrkoundMusicAudio);
     this.load.audio('shootingSound', shootingSoundAudio);
     }
@@ -44,7 +46,15 @@ this.setupCursor();
             callback: this.spawnSquare, // using arrow function to maintain context
             loop: true
         });
-
+   this.anims.create({
+        key: 'running',
+        frames: this.anims.generateFrameNumbers('humanSprite', {
+            start: 0,
+            end: 6
+        }),
+        frameRate: 8,
+        repeat: -1
+    });
     const backgroundMusic = this.sound.add('backgroundMusic', { loop: true });
     backgroundMusic.play();
 
@@ -110,9 +120,10 @@ private updateSquares() {
 
         return; // Stop updating if the game is over
     }
-        const square = this.add.rectangle(0, Phaser.Math.Between(0, this.sys.canvas.height), 20, 20, 0x00ff00);
-        this.squares.add(square);
-    }
+    const human = this.add.sprite(0, Phaser.Math.Between(0, this.sys.canvas.height), 'humanSprite');
+    human.play('running'); // Assuming 'running' is an animation created for the human sprites
+    this.squares.add(human); // Consider renaming 'squares' to a more appropriate name like 'humans'
+}
 
     private handlePointerDown = (pointer: Phaser.Input.Pointer) => {
         this.shoot(pointer);
