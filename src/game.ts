@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import cursorImg from '../public/cursor.png';
 import shootEffectImg from '../public/shoot_effect.png';
+import bacgrkoundMusicAudio from '../public/backgroundsound.mp3';
+import shootingSoundAudio from '../public/shooting.mp3';
 
 class MainScene extends Phaser.Scene {
     private squares: Phaser.GameObjects.Group;
@@ -21,6 +23,8 @@ class MainScene extends Phaser.Scene {
     preload() {
         this.load.image('cursor', cursorImg);
         this.load.spritesheet('shootEffect', shootEffectImg, { frameWidth: 40, frameHeight: 40 });
+this.load.audio('backgroundMusic', bacgrkoundMusicAudio);
+    this.load.audio('shootingSound', shootingSoundAudio);
     }
 
     create() {
@@ -40,6 +44,11 @@ this.setupCursor();
             callback: this.spawnSquare, // using arrow function to maintain context
             loop: true
         });
+
+    const backgroundMusic = this.sound.add('backgroundMusic', { loop: true });
+    backgroundMusic.play();
+
+    this.shootingSound = this.sound.add('shootingSound');
     }
 
     update() {
@@ -117,6 +126,7 @@ private updateSquares() {
                 this.incrementScore();
             }
         });
+    this.shootingSound.play(); // Play shooting sound
     }
 
     private incrementScore() {
